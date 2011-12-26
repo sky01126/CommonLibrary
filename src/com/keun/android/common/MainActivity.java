@@ -5,7 +5,6 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,6 @@ import com.keun.android.common.net.HttpClientManager;
 import com.keun.android.common.net.HttpClientManager.Type;
 import com.keun.android.common.net.http.AndroidHttpClient;
 import com.keun.android.common.utils.StopWatchAverage;
-import com.keun.android.common.utils.StorageUtils;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -149,20 +147,20 @@ public class MainActivity extends ListActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                // 네트워크를 닫아준다.
-                manager.close();
+                if (manager != null) {
+                    manager.close();
+                }
             }
         }
     }
 
     class NativeThread extends Thread {
-
         public void run() {
             StopWatchAverage swa = new StopWatchAverage();
-            AndroidHttpClient manager = null;
+            AndroidHttpClient client = null;
             try {
-                manager = AndroidHttpClient.newInstance("Test Agent", MainActivity.this);
-                HttpResponse response = manager.execute(new HttpPost("http://www.google.com"));
+                client = AndroidHttpClient.newInstance("Test Agent", MainActivity.this);
+                HttpResponse response = client.execute(new HttpPost("http://www.google.com"));
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -170,7 +168,9 @@ public class MainActivity extends ListActivity {
                 System.out.println(getClass().getName() + " : " + swa.toString());
 
                 // 네트워크를 닫아준다.
-                manager.close();
+                if (client != null) {
+                    client.close();
+                }
             }
         }
     }
