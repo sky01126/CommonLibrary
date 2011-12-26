@@ -48,9 +48,6 @@ public class MainActivity extends ListActivity {
         setContentView(R.layout.list_view);
         mInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        System.out.println("외장 디스크 여부 : " + StorageUtils.isExternalStorageAvailable());
-        System.out.println("외장 디스크 여부 : " + Environment.getExternalStorageState());
-
         mArrayList.add(new ListItem("go image activity", ITEM_IMAGE_ACTIVITY));
 
         mArrayList.add(new ListItem("------------------------------", 0));
