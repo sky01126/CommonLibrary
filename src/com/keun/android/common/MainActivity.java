@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends ListActivity {
-
     private static final int ITEM_IMAGE_ACTIVITY = 1;
 
     private static final int ITEM_NET_GET = 101;
