@@ -21,9 +21,12 @@ import android.os.Build;
 import android.os.Environment;
 
 import com.keun.android.common.utils.Logger;
+import com.keun.android.common.utils.StopWatchAverage;
 import com.keun.android.common.utils.StorageUtils;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  * 파일을 내부/외부 디스크에 Cache한다.
@@ -43,6 +46,13 @@ public class SavePathImpl implements ImageDownloader.SavePath {
 
     /** Cache로 저장할 메모리의 기본 사이즈를 설정한다. */
     public static final long MAX_CACHE_STORAGE_SIZE = 20 * 1024;
+
+    /** 이미지 Cache 제한 용량을 검사하는 최소 간격. */
+    private static final long MIN_CACHE_CLEAR_TIME = 20 * 60 * 1000;
+
+    /** Cache 제한 용량 마지막 체크 시간. */
+    private static long mTimeLastCheck;
+    private static boolean sIsRunClearCache;
 
     private final Context mContext;
 
@@ -87,10 +97,144 @@ public class SavePathImpl implements ImageDownloader.SavePath {
      */
     @Override
     public void clear() {
-        // TODO Auto-generated method stub
         if (Logger.isDebugEnabled()) {
             Logger.d(getClass(), "clear.");
         }
+        // Cache 디렉토리의 사이즈를 검사한다.
+        long now = System.currentTimeMillis();
+        if ((now - mTimeLastCheck) < MIN_CACHE_CLEAR_TIME) {
+            return;
+        }
+
+        mTimeLastCheck = now;
+        if (sIsRunClearCache == false) {
+            synchronized (SavePathImpl.class) {
+                if (sIsRunClearCache == false) {
+                    sIsRunClearCache = true;
+                    new ImageCacheClear().start();
+                }
+            }
+        }
+    }
+
+    class ImageCacheClear extends Thread {
+
+        @Override
+        public void run() {
+            StopWatchAverage swa = null;
+            try {
+                String path = getPath();
+                long size = size(0, path);
+                if (Logger.isVerboseEnabled()) {
+                    Logger.v(getClass(), "Dir Total Size : " + size);
+                    swa = new StopWatchAverage("Image Dir Size Check - Run Time");
+                }
+
+                // 폴더가 아니면 작업을 중단한다.
+                if (!((new File(path)).isDirectory())) {
+                    if (Logger.isWarnEnabled()) {
+                        Logger.w(getClass(), path + "는(은) 폴더가 아니다.");
+                    }
+                    return;
+                }
+                if (MAX_CACHE_STORAGE_SIZE > 0 && (MAX_CACHE_STORAGE_SIZE * 1024) < size) {
+                    delete(path);
+                }
+            } catch (Exception e) {
+                if (Logger.isWarnEnabled()) {
+                    Logger.w(getClass(), e);
+                }
+            } finally {
+                if (Logger.isVerboseEnabled() && swa != null) {
+                    Logger.v(getClass(), swa.toString());
+                }
+                sIsRunClearCache = false;
+            }
+        }
+
+        /**
+         * Size 이하가 되도록 파일을 삭제한다.
+         *
+         * @param path 폴더 경로.
+         */
+        private void delete(final String path) {
+            if (path == null) {
+                if (Logger.isWarnEnabled()) {
+                    Logger.w(getClass(), "폴더 경로가 Null이다.");
+                }
+                return;
+            }
+            if (Logger.isDebugEnabled()) {
+                Logger.d(getClass(), path + " 폴더 검사.");
+            }
+            File[] files = new File(path).listFiles();
+            sort(files, 0);
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    delete(file.getAbsolutePath());
+                } else {
+                    try {
+                        // 이미지 폴더의 사이즈를 다시 계산한다.
+                        long size = size(0, path); // Base 디렉토리에서 전체 사이즈를 구함.
+                        if (Logger.isDebugEnabled()) {
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("Image Dir Min Size : ");
+                            sb.append(MAX_CACHE_STORAGE_SIZE * 1024).append(" byte");
+                            sb.append(", Image Dir Size: ").append(size).append(" byte");
+                            Logger.d(getClass(), sb.toString());
+                        }
+                        if ((MAX_CACHE_STORAGE_SIZE * 1024) > size) {
+                            return; // Cache를 Clear했으면 종료한다.
+                        }
+                        file.delete(); // 파일 삭제.
+                        if (Logger.isDebugEnabled()) {
+                            StringBuilder sb = new StringBuilder();
+                            sb.append(file.toString()).append(" 파일 삭제");
+                            Logger.d(getClass(), sb.toString());
+                        }
+                    } catch (Exception e) {
+                        if (Logger.isWarnEnabled()) {
+                            Logger.w(getClass(), e);
+                        }
+                    }
+                }
+            }
+        }
+
+        /**
+         * 파일을 생성날짜 순으로 정렬한다.
+         *
+         * @param files 정렬하려는 파일들의 배열.
+         * @param sort 정렬 기준, 0 : ASC, 1 : DESC
+         */
+        private void sort(File[] files, final int sort) {
+            // 파일을 날짜로 정렬한다.
+            Arrays.sort(files, new Comparator<File>() {
+                public int compare(File f1, File f2) {
+                    if (sort == 0) { // ASC로 정렬..
+                        return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
+                    } else { // DESC로 정렬..
+                        return Long.valueOf(f2.lastModified()).compareTo(f1.lastModified());
+                    }
+                }
+            });
+        }
+
+        /**
+         * Cache 디렉토리의 전체 싸이즈를 가져온다.
+         */
+        private long size(long size, final String path) {
+            File[] files = new File(path).listFiles();
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    size += size(size, file.getAbsolutePath());
+                } else {
+                    size += file.length();
+                }
+            }
+            return size;
+        }
+
     }
 
 }
