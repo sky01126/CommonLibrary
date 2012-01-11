@@ -16,6 +16,7 @@
 
 package com.keun.android.common.net;
 
+import com.keun.android.common.config.Config;
 import com.keun.android.common.utils.Logger;
 
 import org.apache.http.entity.mime.HttpMultipartMode;
@@ -28,7 +29,7 @@ import java.nio.charset.Charset;
 
 /**
  * 파일 업로드 시 업로드 진행률을 읽어온다.
- * 
+ *
  * @author Keun-yang Son
  * @since 2011. 12. 19.
  * @version 1.0
@@ -62,7 +63,7 @@ public class CountingMultipartEntity extends MultipartEntity {
 
     /**
      * 업로드 진행률을 받을 수 있는 Interface.
-     * 
+     *
      * @author Keun-yang Son
      * @since 2011. 12. 19.
      * @version 1.0
@@ -72,18 +73,6 @@ public class CountingMultipartEntity extends MultipartEntity {
     }
 
     public static class CountingOutputStream extends FilterOutputStream {
-
-        /**
-         * The minimum amount of progress that has to be done before the
-         * progress bar gets updated
-         */
-        public static final int MIN_PROGRESS_STEP = 4096;
-
-        /**
-         * The minimum amount of time that has to elapse before the progress bar
-         * gets updated, in ms
-         */
-        public static final long MIN_PROGRESS_TIME = 500;
 
         private long mCurrentBytes;
         private long mTransferred;
@@ -106,8 +95,8 @@ public class CountingMultipartEntity extends MultipartEntity {
                 // 업로드를 모두 진행하였거나 업로드 사이즈가 4096보다크고 500ms가 지났으면 업데이트한다.
                 long now = System.currentTimeMillis();
                 if ((mContentLength <= mTransferred)
-                        || (mTransferred - mCurrentBytes) > MIN_PROGRESS_STEP
-                        && now - mTimeLastNotification > MIN_PROGRESS_TIME) {
+                        || (mTransferred - mCurrentBytes) > Config.MIN_PROGRESS_STEP
+                        && now - mTimeLastNotification > Config.MIN_PROGRESS_TIME) {
                     this.mCurrentBytes = this.mTransferred;
                     this.mTimeLastNotification = now;
                     this.mListener.transferred(this.mContentLength, this.mTransferred);

@@ -46,6 +46,7 @@
 		<echo>Android Ant Jar Build. Available targets:</echo>
 		<echo>    all:      Keun all jar build.</echo>
 		<echo>    net:      Keun network jar build.</echo>
+		<echo>  cache:      Keun image cache jar build.</echo>
 		<echo>   util:      Keun utils jar build.</echo>
 	</target>
 
@@ -101,6 +102,27 @@
 			<exclude name="com/keun/android/common/lang/**" />
 			<exclude name="com/keun/android/common/utils/**" />
 
+			<include name="com/keun/android/common/config/**" />
+			<include name="com/keun/android/common/net/**" />
+			<include name="org/apache/http/entity/mime/**" />
+		</jar>
+		<copy file="${out.absolute.dir}/${jar.util.name}.jar" tofile="${out.path.name}/${jar.util.name}.jar" overwrite="true" />
+	</target>
+
+	<!-- Keun Image Cache JAR 라이브러리를 만든다. -->
+	<target name="cache" depends="clean, -compile" description="generate jar files">
+		<property name="jar.util.name" value="keun-net" />
+		<jar jarfile="${out.absolute.dir}/${jar.util.name}.jar" basedir="${out.classes.absolute.dir}" compress="true">
+			<exclude name="**/**.dex" />
+			<exclude name="**/**.ap_" />
+			<exclude name="**/**.apk" />
+			<exclude name="**/**.java" />
+			<exclude name="com/keun/android/common/*" />
+			<exclude name="com/keun/android/common/lang/**" />
+			<exclude name="com/keun/android/common/utils/**" />
+
+			<include name="com/keun/android/common/config/**" />
+			<include name="com/keun/android/common/image/**" />
 			<include name="com/keun/android/common/net/**" />
 			<include name="org/apache/http/entity/mime/**" />
 		</jar>

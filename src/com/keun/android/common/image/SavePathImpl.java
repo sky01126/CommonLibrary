@@ -20,6 +20,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
 
+import com.keun.android.common.config.Config;
 import com.keun.android.common.utils.Logger;
 import com.keun.android.common.utils.StopWatchAverage;
 import com.keun.android.common.utils.StorageUtils;
@@ -37,18 +38,6 @@ import java.util.Comparator;
  * @see
  */
 public class SavePathImpl implements ImageDownloader.SavePath {
-
-    /** Froyo의 API Level을 설정한다. */
-    private static final int API_LEVEL_FROYO = 8;
-
-    /** 최소의 외부/내부 메모리 공간 (10 MByte) */
-    private static final long MIN_STORAGE_SIZE = 10 * 1024 * 1024;
-
-    /** Cache로 저장할 메모리의 기본 사이즈를 설정한다. */
-    public static final long MAX_CACHE_STORAGE_SIZE = 20 * 1024;
-
-    /** 이미지 Cache 제한 용량을 검사하는 최소 간격. */
-    private static final long MIN_CACHE_CLEAR_TIME = 20 * 60 * 1000;
 
     /** Cache 제한 용량 마지막 체크 시간. */
     private static long mTimeLastCheck;
@@ -72,15 +61,15 @@ public class SavePathImpl implements ImageDownloader.SavePath {
     public String getPath() {
         try {
             // 외부 메모리가 10M 이상인 경우에만 저장한다.
-            if (StorageUtils.availableExternalStorageSize() > MIN_STORAGE_SIZE) {
+            if (StorageUtils.availableExternalStorageSize() > Config.MIN_STORAGE_SIZE) {
                 // 프로요 이전 버전은 외부 cache를 API에서 지원하지 않음.
-                if (Build.VERSION.SDK_INT < API_LEVEL_FROYO) {
+                if (Build.VERSION.SDK_INT < Config.API_LEVEL_FROYO) {
                     return Environment.getExternalStorageDirectory() + File.separator + "Android"
                             + File.separator + mContext.getPackageName() + File.separator + "cache";
                 } else {
                     return mContext.getExternalCacheDir().getAbsolutePath();
                 }
-            } else if (StorageUtils.availableInternalStorageSize() > MIN_STORAGE_SIZE) {
+            } else if (StorageUtils.availableInternalStorageSize() > Config.MIN_STORAGE_SIZE) {
                 // 내부 메모리가 10M 이상인 경우에만 저장한다.
                 return mContext.getCacheDir().getAbsolutePath();
             }
@@ -102,7 +91,7 @@ public class SavePathImpl implements ImageDownloader.SavePath {
         }
         // Cache 디렉토리의 사이즈를 검사한다.
         long now = System.currentTimeMillis();
-        if ((now - mTimeLastCheck) < MIN_CACHE_CLEAR_TIME) {
+        if ((now - mTimeLastCheck) < Config.MIN_CACHE_CLEAR_TIME) {
             return;
         }
 
@@ -137,7 +126,8 @@ public class SavePathImpl implements ImageDownloader.SavePath {
                     }
                     return;
                 }
-                if (MAX_CACHE_STORAGE_SIZE > 0 && (MAX_CACHE_STORAGE_SIZE * 1024) < size) {
+                if (Config.MAX_CACHE_STORAGE_SIZE > 0
+                        && (Config.MAX_CACHE_STORAGE_SIZE * 1024) < size) {
                     delete(path);
                 }
             } catch (Exception e) {
@@ -179,11 +169,11 @@ public class SavePathImpl implements ImageDownloader.SavePath {
                         if (Logger.isDebugEnabled()) {
                             StringBuilder sb = new StringBuilder();
                             sb.append("Image Dir Min Size : ");
-                            sb.append(MAX_CACHE_STORAGE_SIZE * 1024).append(" byte");
+                            sb.append(Config.MAX_CACHE_STORAGE_SIZE * 1024).append(" byte");
                             sb.append(", Image Dir Size: ").append(size).append(" byte");
                             Logger.d(getClass(), sb.toString());
                         }
-                        if ((MAX_CACHE_STORAGE_SIZE * 1024) > size) {
+                        if ((Config.MAX_CACHE_STORAGE_SIZE * 1024) > size) {
                             return; // Cache를 Clear했으면 종료한다.
                         }
                         file.delete(); // 파일 삭제.

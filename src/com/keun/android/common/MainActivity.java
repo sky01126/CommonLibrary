@@ -43,6 +43,7 @@ public class MainActivity extends ListActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.list_view);
+
         mInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         mArrayList.add(new ListItem("go image activity", ITEM_IMAGE_ACTIVITY));
@@ -105,6 +106,7 @@ public class MainActivity extends ListActivity {
             this.mType = type;
         }
 
+        @SuppressWarnings("unused")
         public void run() {
             HttpClientManager manager = null;
             try {
@@ -154,6 +156,7 @@ public class MainActivity extends ListActivity {
     }
 
     class NativeThread extends Thread {
+        @SuppressWarnings("unused")
         public void run() {
             StopWatchAverage swa = new StopWatchAverage();
             AndroidHttpClient client = null;

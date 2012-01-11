@@ -20,6 +20,7 @@ import android.content.Context;
 import android.os.Build;
 import android.webkit.URLUtil;
 
+import com.keun.android.common.config.Config;
 import com.keun.android.common.net.CountingMultipartEntity.ProgressListener;
 import com.keun.android.common.utils.Logger;
 import com.keun.android.common.utils.StopWatchAverage;
@@ -67,18 +68,13 @@ import java.util.zip.GZIPInputStream;
  * Http Clien를 이용한 네트워크 사용 설정. <br />
  * Native AndroidHttpClient는 Android API Level 8 이상에서만 사용이 가능하여 Android API
  * Level에 따라서 분기한다.
- * 
+ *
  * @author Keun-yang Son
  * @since 2011. 12. 19.
  * @version 1.0
  * @see
  */
 public class HttpClientManager {
-
-    private static final String UTF_8 = "UTF-8";
-
-    /* Native AndroidHttpClien는 Froyo 이상에서만 사용이 가능하다. */
-    private static final int API_LEVEL_FROYO = 8;
 
     public static enum Type {
         GET, PUT, POST, DELETE, UPLOAD
@@ -97,7 +93,7 @@ public class HttpClientManager {
      * HttpClientManager를 초기화한다.
      */
     public HttpClientManager() {
-        if (Build.VERSION.SDK_INT < API_LEVEL_FROYO) {
+        if (Build.VERSION.SDK_INT < Config.API_LEVEL_FROYO) {
             mHttpClient = HttpClientManager.connectLocal(getClass().getSimpleName(), null);
         } else {
             mHttpClient = HttpClientManager.connectNative(getClass().getSimpleName(), null);
@@ -106,11 +102,11 @@ public class HttpClientManager {
 
     /**
      * HttpClientManager를 초기화한다.
-     * 
+     *
      * @param userAgent Http request 시 User-Agent값을 정의한다.
      */
     public HttpClientManager(String userAgent) {
-        if (Build.VERSION.SDK_INT < API_LEVEL_FROYO) {
+        if (Build.VERSION.SDK_INT < Config.API_LEVEL_FROYO) {
             mHttpClient = HttpClientManager.connectLocal(userAgent, null);
         } else {
             mHttpClient = HttpClientManager.connectNative(userAgent, null);
@@ -119,12 +115,12 @@ public class HttpClientManager {
 
     /**
      * HttpClientManager를 초기화한다.
-     * 
+     *
      * @param context SSL sessions을 caching한다. (Null인 경우에는 caching하지 않음)
      * @param userAgent Http request 시 User-Agent값을 정의한다.
      */
     public HttpClientManager(Context context, String userAgent) {
-        if (Build.VERSION.SDK_INT < API_LEVEL_FROYO) {
+        if (Build.VERSION.SDK_INT < Config.API_LEVEL_FROYO) {
             mHttpClient = HttpClientManager.connectLocal(userAgent, context);
         } else {
             mHttpClient = HttpClientManager.connectNative(userAgent, context);
@@ -133,13 +129,13 @@ public class HttpClientManager {
 
     /**
      * HttpClientManager를 초기화한다.
-     * 
+     *
      * @param context SSL sessions을 caching한다. (Null인 경우에는 caching하지 않음)
      * @param userAgent Http request 시 User-Agent값을 정의한다.
      * @param timeout Connection/Socket Timeout 시간을 설정한다.
      */
     public HttpClientManager(Context context, String userAgent, int timeout) {
-        if (Build.VERSION.SDK_INT < API_LEVEL_FROYO) {
+        if (Build.VERSION.SDK_INT < Config.API_LEVEL_FROYO) {
             mHttpClient = HttpClientManager.connectLocal(userAgent, context);
         } else {
             mHttpClient = HttpClientManager.connectNative(userAgent, context);
@@ -153,14 +149,14 @@ public class HttpClientManager {
 
     /**
      * HttpClientManager를 초기화한다.
-     * 
+     *
      * @param context SSL sessions을 caching한다. (Null인 경우에는 caching하지 않음)
      * @param userAgent Http request 시 User-Agent값을 정의한다.
      * @param conTimeout Connection Timeout 시간을 설정한다.
      * @param soTimeout Socket Timeout 시간을 설정한다.
      */
     public HttpClientManager(Context context, String userAgent, int conTimeout, int soTimeout) {
-        if (Build.VERSION.SDK_INT < API_LEVEL_FROYO) {
+        if (Build.VERSION.SDK_INT < Config.API_LEVEL_FROYO) {
             mHttpClient = HttpClientManager.connectLocal(userAgent, context);
         } else {
             mHttpClient = HttpClientManager.connectNative(userAgent, context);
@@ -174,7 +170,7 @@ public class HttpClientManager {
 
     /**
      * HttpClientManager를 초기화한다.
-     * 
+     *
      * @param context SSL sessions을 caching한다. (Null인 경우에는 caching하지 않음)
      * @param userAgent Http request 시 User-Agent값을 정의한다.
      * @param conTimeout Connection Timeout 시간을 설정한다.
@@ -183,7 +179,7 @@ public class HttpClientManager {
      */
     protected HttpClientManager(Context context, String userAgent, int conTimeout, int soTimeout,
             int bufferSize) {
-        if (Build.VERSION.SDK_INT < API_LEVEL_FROYO) {
+        if (Build.VERSION.SDK_INT < Config.API_LEVEL_FROYO) {
             mHttpClient = HttpClientManager.connectLocal(userAgent, context);
         } else {
             mHttpClient = HttpClientManager.connectNative(userAgent, context);
@@ -198,7 +194,7 @@ public class HttpClientManager {
 
     /**
      * Froyo 이전 버전은 내부에 있는 HttpClient를 사용한다.
-     * 
+     *
      * @return HttpClient
      */
     public static HttpClient connectLocal(String userAgent, Context context) {
@@ -216,7 +212,7 @@ public class HttpClientManager {
 
     /**
      * Android Native의 HttpClient를 사용한다.
-     * 
+     *
      * @return HttpClient
      */
     public static HttpClient connectNative(String userAgent, Context context) {
@@ -247,7 +243,7 @@ public class HttpClientManager {
 
     /**
      * Network Response 시 Gzip 사용 여부를 설정한다.
-     * 
+     *
      * @param isAcceptGzip Gzip 사용(true) / 미사용(false)
      */
     public void setAcceptGzip(boolean isAcceptGzip) {
@@ -258,26 +254,26 @@ public class HttpClientManager {
 
     /**
      * Http Get으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * manager.sendGet(url);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @return HttpResponse.
      * @throws IOException
      */
     public HttpResponse sendGet(String url) throws IOException {
-        return sendGet(url, UTF_8, null, null, null);
+        return sendGet(url, Config.UTF_8, null, null, null);
     }
 
     /**
      * Http Get으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * manager.sendGet(url, encoding);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @return HttpResponse.
@@ -289,37 +285,37 @@ public class HttpClientManager {
 
     /**
      * Http Get으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendGet(url, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param params 파라미터 리스트.
      * @return HttpResponse.
      * @throws IOException
      */
     public HttpResponse sendGet(String url, List<NameValuePair> params) throws IOException {
-        return sendGet(url, UTF_8, null, null, params);
+        return sendGet(url, Config.UTF_8, null, null, params);
     }
 
     /**
      * Http Get으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendGet(url, encoding, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param params 파라미터 리스트.
@@ -333,42 +329,42 @@ public class HttpClientManager {
 
     /**
      * Http Get으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      *  manager.sendGet(url, headers);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @return HttpResponse.
      * @throws IOException
      */
     public HttpResponse sendGet(String url, HeaderGroup headers) throws IOException {
-        return sendGet(url, UTF_8, headers, null, null);
+        return sendGet(url, Config.UTF_8, headers, null, null);
     }
 
     /**
      * Http Get으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendGet(url, headers, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @param params 파라미터 리스트.
@@ -377,26 +373,26 @@ public class HttpClientManager {
      */
     public HttpResponse sendGet(String url, HeaderGroup headers, List<NameValuePair> params)
             throws IOException {
-        return sendGet(url, UTF_8, headers, null, params);
+        return sendGet(url, Config.UTF_8, headers, null, params);
     }
 
     /**
      * Http Get으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendGet(url, encoding, headers, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param headers Header 정보.
@@ -411,16 +407,16 @@ public class HttpClientManager {
 
     /**
      * Http Get으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      *  manager.sendGet(url, encoding, headers);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param headers Header 정보.
@@ -435,7 +431,7 @@ public class HttpClientManager {
 
     /**
      * Http Get으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
@@ -450,10 +446,10 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      *  manager.sendGet(url, cookies);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @param params 파라미터 리스트.
@@ -461,12 +457,12 @@ public class HttpClientManager {
      * @throws IOException
      */
     public HttpResponse sendGet(String url, CookieStore cookies) throws IOException {
-        return sendGet(url, UTF_8, null, cookies, null);
+        return sendGet(url, Config.UTF_8, null, cookies, null);
     }
 
     /**
      * Http Get으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
@@ -481,15 +477,15 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendGet(url, cookies, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @param params 파라미터 리스트.
@@ -498,12 +494,12 @@ public class HttpClientManager {
      */
     public HttpResponse sendGet(String url, CookieStore cookies, List<NameValuePair> params)
             throws IOException {
-        return sendGet(url, UTF_8, null, cookies, params);
+        return sendGet(url, Config.UTF_8, null, cookies, params);
     }
 
     /**
      * Http Get으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
@@ -518,10 +514,10 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      *  manager.sendGet(url, encoding, cookies);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param headers Header 정보.
@@ -535,7 +531,7 @@ public class HttpClientManager {
 
     /**
      * Http Get으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
@@ -550,15 +546,15 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendGet(url, encoding, cookies, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param headers Header 정보.
@@ -573,13 +569,13 @@ public class HttpClientManager {
 
     /**
      * Http Get으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
      *  BasicClientCookie cookie = new BasicClientCookie(name, value);
@@ -593,10 +589,10 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      *  manager.sendGet(url, headers, cookies);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @return HttpResponse.
@@ -604,18 +600,18 @@ public class HttpClientManager {
      */
     public HttpResponse sendGet(String url, HeaderGroup headers, CookieStore cookies)
             throws IOException {
-        return sendGet(url, UTF_8, headers, cookies, null);
+        return sendGet(url, Config.UTF_8, headers, cookies, null);
     }
 
     /**
      * Http Get으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
      *  BasicClientCookie cookie = new BasicClientCookie(name, value);
@@ -629,15 +625,15 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendGet(url, headers, cookies, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @param params 파라미터 리스트.
@@ -646,18 +642,18 @@ public class HttpClientManager {
      */
     public HttpResponse sendGet(String url, HeaderGroup headers, CookieStore cookies,
             List<NameValuePair> params) throws IOException {
-        return sendGet(url, UTF_8, headers, cookies, params);
+        return sendGet(url, Config.UTF_8, headers, cookies, params);
     }
 
     /**
      * Http Get으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
      *  BasicClientCookie cookie = new BasicClientCookie(name, value);
@@ -671,10 +667,10 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      *  manager.sendGet(url, encoding, headers, cookies);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param headers Header 정보.
@@ -689,13 +685,13 @@ public class HttpClientManager {
 
     /**
      * Http Get으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
      *  BasicClientCookie cookie = new BasicClientCookie(name, value);
@@ -709,15 +705,15 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendGet(url, encoding, headers, cookies, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param headers Header 정보.
@@ -738,27 +734,27 @@ public class HttpClientManager {
 
     /**
      * Http Put으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * manager.sendPut(url);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param params 파라미터 리스트.
      * @return HttpResponse.
      * @throws IOException
      */
     public HttpResponse sendPut(String url) throws IOException {
-        return sendPut(url, UTF_8, null, null, null, null, null);
+        return sendPut(url, Config.UTF_8, null, null, null, null, null);
     }
 
     /**
      * Http Put으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * manager.sendPut(url, encoding);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param params 파라미터 리스트.
@@ -771,37 +767,37 @@ public class HttpClientManager {
 
     /**
      * Http Put으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendPut(url, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param params 파라미터 리스트.
      * @return HttpResponse.
      * @throws IOException
      */
     public HttpResponse sendPut(String url, List<NameValuePair> params) throws IOException {
-        return sendPut(url, UTF_8, null, null, null, null, params);
+        return sendPut(url, Config.UTF_8, null, null, null, null, params);
     }
 
     /**
      * Http Put으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendPut(url, encoding, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param params 파라미터 리스트.
@@ -815,13 +811,13 @@ public class HttpClientManager {
 
     /**
      * Http Put으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
      *  BasicClientCookie cookie = new BasicClientCookie(name, value);
@@ -835,15 +831,15 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendPut(url, headers, cookies, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @param cookies Cookie 정보.
@@ -853,18 +849,18 @@ public class HttpClientManager {
      */
     public HttpResponse sendPut(String url, HeaderGroup headers, CookieStore cookies,
             List<NameValuePair> params) throws IOException {
-        return sendPut(url, UTF_8, null, headers, cookies, null, params);
+        return sendPut(url, Config.UTF_8, null, headers, cookies, null, params);
     }
 
     /**
      * Http PUt으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
      *  BasicClientCookie cookie = new BasicClientCookie(name, value);
@@ -878,15 +874,15 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendPut(url, encoding, headers, cookies, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param headers Header 정보.
@@ -902,16 +898,16 @@ public class HttpClientManager {
 
     /**
      * Http Put으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendPut(url, encoding, contextType, str.getBytes(), params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param contextType Context Type
      * @param body Http PUT Body에 전달 할 정보.
@@ -921,21 +917,21 @@ public class HttpClientManager {
      */
     public HttpResponse sendPut(String url, String contextType, byte[] body,
             List<NameValuePair> params) throws IOException {
-        return sendPut(url, UTF_8, contextType, null, null, body, params);
+        return sendPut(url, Config.UTF_8, contextType, null, null, body, params);
     }
 
     /**
      * Http Put으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendPut(url, encoding, contextType, str.getBytes(), params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param contextType Context Type
@@ -951,21 +947,21 @@ public class HttpClientManager {
 
     /**
      * Http Put으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendPut(url, contextType, headers, str.getBytes(), params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param contextType Context Type
      * @param headers Header 정보.
@@ -976,26 +972,26 @@ public class HttpClientManager {
      */
     public HttpResponse sendPut(String url, String contextType, HeaderGroup headers, byte[] body,
             List<NameValuePair> params) throws IOException {
-        return sendPut(url, UTF_8, contextType, headers, null, body, params);
+        return sendPut(url, Config.UTF_8, contextType, headers, null, body, params);
     }
 
     /**
      * Http Put으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendPut(url, encoding, contextType, headers, str.getBytes(), params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param contextType Context Type
@@ -1012,7 +1008,7 @@ public class HttpClientManager {
 
     /**
      * Http Put으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
@@ -1027,15 +1023,15 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendPut(url, contextType, cookies, str.getBytes(), params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param contextType Context Type
      * @param cookies Cookie 정보.
@@ -1046,12 +1042,12 @@ public class HttpClientManager {
      */
     public HttpResponse sendPut(String url, String contextType, CookieStore cookies, byte[] body,
             List<NameValuePair> params) throws IOException {
-        return sendPut(url, UTF_8, contextType, null, cookies, body, params);
+        return sendPut(url, Config.UTF_8, contextType, null, cookies, body, params);
     }
 
     /**
      * Http Put으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
@@ -1066,15 +1062,15 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendPut(url, encoding, contextType, cookies, str.getBytes(), params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param contextType Context Type
@@ -1091,13 +1087,13 @@ public class HttpClientManager {
 
     /**
      * Http Put으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
      *  BasicClientCookie cookie = new BasicClientCookie(name, value);
@@ -1111,15 +1107,15 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendPut(url, contextType, headers, cookies, str.getBytes(), params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param contextType Context Type
@@ -1132,18 +1128,18 @@ public class HttpClientManager {
      */
     public HttpResponse sendPut(String url, String contextType, HeaderGroup headers,
             CookieStore cookies, byte[] body, List<NameValuePair> params) throws IOException {
-        return sendPut(url, UTF_8, contextType, headers, cookies, body, params);
+        return sendPut(url, Config.UTF_8, contextType, headers, cookies, body, params);
     }
 
     /**
      * Http Put으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
      *  BasicClientCookie cookie = new BasicClientCookie(name, value);
@@ -1157,15 +1153,15 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendPut(url, encoding, contextType, headers, cookies, str.getBytes(), params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param contextType Context Type
@@ -1205,11 +1201,11 @@ public class HttpClientManager {
 
     /**
      * Http Post으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * manager.sendPost(url);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @param cookies Cookie 정보.
@@ -1224,16 +1220,16 @@ public class HttpClientManager {
 
     /**
      * Http Post으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendPost(url, headers, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @param cookies Cookie 정보.
@@ -1248,16 +1244,16 @@ public class HttpClientManager {
 
     /**
      * Http Post으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      *  manager.sendPost(url, headers);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @param cookies Cookie 정보.
@@ -1272,21 +1268,21 @@ public class HttpClientManager {
 
     /**
      * Http Post으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendPost(url, headers, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @param cookies Cookie 정보.
@@ -1302,7 +1298,7 @@ public class HttpClientManager {
 
     /**
      * Http Post으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
@@ -1317,10 +1313,10 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      *  manager.sendPost(url, cookies, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @param cookies Cookie 정보.
@@ -1335,7 +1331,7 @@ public class HttpClientManager {
 
     /**
      * Http Post으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
@@ -1350,15 +1346,15 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendPost(url, cookies, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @param cookies Cookie 정보.
@@ -1374,13 +1370,13 @@ public class HttpClientManager {
 
     /**
      * Http Post으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
      *  BasicClientCookie cookie = new BasicClientCookie(name, value);
@@ -1394,15 +1390,15 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendPost(url, headers, cookies, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @param cookies Cookie 정보.
@@ -1418,13 +1414,13 @@ public class HttpClientManager {
 
     /**
      * Http Post으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
      *  BasicClientCookie cookie = new BasicClientCookie(name, value);
@@ -1438,20 +1434,20 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      * -- 업로드 할 파일 리스트 생성.
      *  List&lt;NameValuePair&gt; files = new ArrayList&lt;NameValuePair&gt;();
      *  files.add(new BasicNameValuePair(name, value));
      *  files.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendPost(url, headers, cookies, params, files);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @param cookies Cookie 정보.
@@ -1467,13 +1463,13 @@ public class HttpClientManager {
 
     /**
      * Http Post으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
      *  BasicClientCookie cookie = new BasicClientCookie(name, value);
@@ -1487,23 +1483,23 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      * -- 업로드 할 파일 리스트 생성.
      *  List&lt;NameValuePair&gt; files = new ArrayList&lt;NameValuePair&gt;();
      *  files.add(new BasicNameValuePair(name, value));
      *  files.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  -- 업로드 진행률.
      *  ProgressListener listener = new CustomProgressListener();
-     * 
+     *
      *  manager.sendPost(url, headers, cookies, params, files, listener);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @param cookies Cookie 정보.
@@ -1547,26 +1543,26 @@ public class HttpClientManager {
 
     /**
      * Http Delete으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * manager.sendDelete(url);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @return HttpResponse.
      * @throws IOException
      */
     public HttpResponse sendDelete(String url) throws IOException {
-        return sendDelete(url, UTF_8, null, null, null);
+        return sendDelete(url, Config.UTF_8, null, null, null);
     }
 
     /**
      * Http Delete으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * manager.sendDelete(url, encoding);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @return HttpResponse.
@@ -1578,37 +1574,37 @@ public class HttpClientManager {
 
     /**
      * Http Delete으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendDelete(url, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param params 파라미터 리스트.
      * @return HttpResponse.
      * @throws IOException
      */
     public HttpResponse sendDelete(String url, List<NameValuePair> params) throws IOException {
-        return sendDelete(url, UTF_8, null, null, params);
+        return sendDelete(url, Config.UTF_8, null, null, params);
     }
 
     /**
      * Http Delete으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendDelete(url, encoding, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param params 파라미터 리스트.
@@ -1622,16 +1618,16 @@ public class HttpClientManager {
 
     /**
      * Http Delete으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      *  manager.sendDelete(url, headers);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @param params 파라미터 리스트.
@@ -1639,26 +1635,26 @@ public class HttpClientManager {
      * @throws IOException
      */
     public HttpResponse sendDelete(String url, HeaderGroup headers) throws IOException {
-        return sendDelete(url, UTF_8, headers, null, null);
+        return sendDelete(url, Config.UTF_8, headers, null, null);
     }
 
     /**
      * Http Delete으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendDelete(url, headers, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @param params 파라미터 리스트.
@@ -1667,21 +1663,21 @@ public class HttpClientManager {
      */
     public HttpResponse sendDelete(String url, HeaderGroup headers, List<NameValuePair> params)
             throws IOException {
-        return sendDelete(url, UTF_8, headers, null, params);
+        return sendDelete(url, Config.UTF_8, headers, null, params);
     }
 
     /**
      * Http Delete으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      *  manager.sendDelete(url, encoding, headers);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param headers Header 정보.
@@ -1696,21 +1692,21 @@ public class HttpClientManager {
 
     /**
      * Http Delete으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendDelete(url, encoding, headers, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param headers Header 정보.
@@ -1725,7 +1721,7 @@ public class HttpClientManager {
 
     /**
      * Http Delete으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
@@ -1740,10 +1736,10 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      *  manager.sendDelete(url, cookies);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param headers Header 정보.
@@ -1752,12 +1748,12 @@ public class HttpClientManager {
      * @throws IOException
      */
     public HttpResponse sendDelete(String url, CookieStore cookies) throws IOException {
-        return sendDelete(url, UTF_8, null, cookies, null);
+        return sendDelete(url, Config.UTF_8, null, cookies, null);
     }
 
     /**
      * Http Delete으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
@@ -1772,15 +1768,15 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendDelete(url, cookies, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param headers Header 정보.
@@ -1790,12 +1786,12 @@ public class HttpClientManager {
      */
     public HttpResponse sendDelete(String url, CookieStore cookies, List<NameValuePair> params)
             throws IOException {
-        return sendDelete(url, UTF_8, null, cookies, params);
+        return sendDelete(url, Config.UTF_8, null, cookies, params);
     }
 
     /**
      * Http Delete으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
@@ -1810,15 +1806,15 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendDelete(url, encoding, cookies, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param headers Header 정보.
@@ -1833,7 +1829,7 @@ public class HttpClientManager {
 
     /**
      * Http Delete으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
@@ -1848,10 +1844,10 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      *  manager.sendDelete(url, encoding, cookies);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param headers Header 정보.
@@ -1865,13 +1861,13 @@ public class HttpClientManager {
 
     /**
      * Http Delete으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
      *  BasicClientCookie cookie = new BasicClientCookie(name, value);
@@ -1885,15 +1881,15 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendDelete(url, headers, cookies, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param headers Header 정보.
@@ -1903,18 +1899,18 @@ public class HttpClientManager {
      */
     public HttpResponse sendDelete(String url, HeaderGroup headers, CookieStore cookies,
             List<NameValuePair> params) throws IOException {
-        return sendDelete(url, UTF_8, headers, cookies, params);
+        return sendDelete(url, Config.UTF_8, headers, cookies, params);
     }
 
     /**
      * Http Delete으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
      *  BasicClientCookie cookie = new BasicClientCookie(name, value);
@@ -1928,10 +1924,10 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      *  manager.sendDelete(url, headers, cookies);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @return HttpResponse.
@@ -1939,18 +1935,18 @@ public class HttpClientManager {
      */
     public HttpResponse sendDelete(String url, HeaderGroup headers, CookieStore cookies)
             throws IOException {
-        return sendDelete(url, UTF_8, headers, cookies, null);
+        return sendDelete(url, Config.UTF_8, headers, cookies, null);
     }
 
     /**
      * Http Delete으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
      *  BasicClientCookie cookie = new BasicClientCookie(name, value);
@@ -1964,10 +1960,10 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      *  manager.sendDelete(url, encoding, headers, cookies, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param headers Header 정보.
      * @param cookies Cookie 정보.
@@ -1981,13 +1977,13 @@ public class HttpClientManager {
 
     /**
      * Http Delete으로 서버에 요청한다.
-     * 
+     *
      * <pre>
      * -- Header 정보 생성.
      *  HeaderGroup headers = = new HeaderGroup();
      *  headers.addHeader(new BasicHeader(name, value));
      *  headers.addHeader(new BasicHeader(name, value));
-     * 
+     *
      * -- Cookie 정보 생성.
      *  CookieStore cookies = new BasicCookieStore();
      *  BasicClientCookie cookie = new BasicClientCookie(name, value);
@@ -2001,15 +1997,15 @@ public class HttpClientManager {
      *      cookie.setExpiryDate(expiry);
      *  }
      *  cookies.addCookie(cookie);
-     * 
+     *
      * -- 파리미터 리스트 생성.
      *  List&lt;NameValuePair&gt; params = new ArrayList&lt;NameValuePair&gt;();
      *  params.add(new BasicNameValuePair(name, value));
      *  params.add(new BasicNameValuePair(name, value));
-     * 
+     *
      *  manager.sendDelete(url, encoding, headers, cookies, params);
      * </pre>
-     * 
+     *
      * @param url Http URL.
      * @param encoding The encoding to use.
      * @param headers Header 정보.
@@ -2103,7 +2099,7 @@ public class HttpClientManager {
      * Anything with a space is passed to search.<br />
      * Converts to lowercase any mistakenly uppercased schema (i.e., "Http://"
      * converts to "http://"
-     * 
+     *
      * @return Original or modified URL
      */
     private String urlFilter(String url) {
@@ -2131,7 +2127,7 @@ public class HttpClientManager {
      * Returns a String that is suitable for use as an
      * <code>application/x-www-form-urlencoded
      * list of parameters in an HTTP PUT or HTTP POST.
-     * 
+     *
      * @param parameters The parameters to include.
      * @param encoding The encoding to use.
      */
@@ -2158,7 +2154,7 @@ public class HttpClientManager {
     /**
      * Modifies a request to indicate to the server that we would like a gzipped
      * response. (Uses the "Accept-Encoding" HTTP header.)
-     * 
+     *
      * @param request the request to modify
      * @see #getUngzippedContent
      */
@@ -2169,7 +2165,7 @@ public class HttpClientManager {
     /**
      * Gets the input stream from a response entity. If the entity is gzipped
      * then this will get a stream over the uncompressed data.
-     * 
+     *
      * @param entity the entity whose content should be read
      * @return the input stream to read from
      * @throws IOException
@@ -2207,7 +2203,7 @@ public class HttpClientManager {
         String url = request.getURI().toString();
         switch (type) {
             case POST: {
-                url = url + (params != null ? "?" + format(params, UTF_8) : "");
+                url = url + (params != null ? "?" + format(params, Config.UTF_8) : "");
                 if (response == null) {
                     Logger.d(getClass(), "HTTP Request URI (" + type.name() + ") : " + url);
                 } else {
